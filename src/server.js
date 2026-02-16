@@ -7,6 +7,7 @@ process.on('unhandledRejection', (reason, promise) => {
   console.error('UNHANDLED REJECTION at:', promise, 'reason:', reason);
   process.exit(1);
 });
+console.log('🚀 Server starting...');
 
 const express = require('express');
 const cors = require('cors');
