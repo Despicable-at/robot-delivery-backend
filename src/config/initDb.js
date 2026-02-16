@@ -67,9 +67,17 @@ const createTables = async () => {
       );
     `);
 
+    // Create enum type safely
+    await client.query(`
+      DO $$ BEGIN
+        CREATE TYPE robot_status_type AS ENUM ('available', 'busy');
+      EXCEPTION
+        WHEN duplicate_object THEN null;
+      END $$;
+    `);
+
     // robot_status (single row)
     await client.query(`
-      CREATE TYPE IF NOT EXISTS robot_status_type AS ENUM ('available', 'busy');
       CREATE TABLE IF NOT EXISTS robot_status (
         id SERIAL PRIMARY KEY,
         status robot_status_type NOT NULL DEFAULT 'available',
@@ -89,6 +97,7 @@ const createTables = async () => {
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('Error creating tables:', err);
+    throw err; // rethrow so server.js can handle it
   } finally {
     client.release();
   }
